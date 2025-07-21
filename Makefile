@@ -16,7 +16,7 @@ format:
 
 # Run type checker
 typecheck:
-	uvx mypy . --namespace-packages --explicit-package-bases
+	uv run mypy . --namespace-packages --explicit-package-bases
 
 # Run tests
 test:

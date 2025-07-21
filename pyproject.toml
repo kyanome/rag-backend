@@ -4,11 +4,33 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "azure-search-documents>=11.4.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+]
 
 [tool.mypy]
 strict = true
 python_version = "3.12"
+warn_return_any = false
+warn_unused_ignores = false
+plugins = ["pydantic.mypy"]
+exclude = [
+    "tests/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "pydantic",
+    "pydantic.*",
+    "azure.*",
+    "openai.*",
+]
+ignore_missing_imports = true
 
 [tool.ruff]
 target-version = "py312"
@@ -43,4 +65,6 @@ line-ending = "auto"
 dev = [
     "pytest>=8.4.1",
     "pytest-stub>=1.1.0",
+    "mypy>=1.0.0",
+    "types-requests",
 ]
