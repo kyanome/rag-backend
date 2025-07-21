@@ -42,4 +42,5 @@ line-ending = "auto"
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "pytest-stub>=1.1.0",
 ]
