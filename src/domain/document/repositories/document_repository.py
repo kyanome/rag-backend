@@ -21,15 +21,6 @@ class DocumentRepository(ABC):
         pass
 
     @abstractmethod
-    async def search_by_embedding(
-        self,
-        query_embedding: list[float],
-        top_k: int = 5,
-    ) -> list[Document]:
-        """Search documents by embedding similarity."""
-        pass
-
-    @abstractmethod
     async def update(self, document: Document) -> Document:
         """Update an existing document."""
         pass
