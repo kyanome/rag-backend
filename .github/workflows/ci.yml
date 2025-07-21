@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      
+      # Lock file check
+      - name: Check lock file
+        run: uv lock --locked
+      
+      # Lint, format, and type check (matching Makefile)
+      - name: Lint
+        run: uvx ruff check --extend-select I .
+      
+      - name: Format check
+        run: uvx ruff format --check .
+      
+      - name: Type check
+        run: uvx mypy . --namespace-packages --explicit-package-bases
+      
+      # Run tests
+      - name: Test
+        run: uv run pytest
