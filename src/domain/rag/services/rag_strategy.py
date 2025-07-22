@@ -1,22 +1,26 @@
 from abc import ABC, abstractmethod
 
-from src.domain.document.repositories.document_repository import DocumentRepository
-from src.domain.rag.models.query import Query, QueryResult
+from src.domain.document.models.document import Document
 
 
 class RAGStrategy(ABC):
-    def __init__(self, document_repository: DocumentRepository):
-        self.document_repository = document_repository
+    """Abstract base class for RAG retrieval strategies."""
 
     @abstractmethod
-    async def execute(self, query: Query) -> QueryResult:
+    async def retrieve_documents(
+        self, query_text: str, top_k: int = 5
+    ) -> list[Document]:
         """
-        Execute RAG query and return the result.
+        Retrieve relevant documents for the given query.
 
-        This method should:
-        1. Generate embedding for the query
-        2. Search for relevant documents using document_repository
-        3. Generate answer based on the documents
-        4. Return the complete result
+        This method defines HOW to search for documents (e.g., keyword search,
+        semantic search, hybrid search, etc.)
+
+        Args:
+            query_text: The query text
+            top_k: Number of documents to retrieve
+
+        Returns:
+            List of relevant documents
         """
         pass
