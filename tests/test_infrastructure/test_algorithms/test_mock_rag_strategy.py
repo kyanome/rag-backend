@@ -1,7 +1,6 @@
 import pytest
 
 from src.domain.document.models.document import Document
-from src.domain.rag.models.query import Query
 from src.infrastructure.algorithms.mock_rag_strategy import MockRAGStrategy
 from src.infrastructure.repositories.in_memory_document_repository import (
     InMemoryDocumentRepository,
@@ -41,52 +40,38 @@ class TestMockRAGStrategy:
     def empty_repository(self):
         return InMemoryDocumentRepository()
 
-    async def test_execute_with_documents(self, repository_with_documents):
+    async def test_retrieve_documents_with_documents(self, repository_with_documents):
         strategy = MockRAGStrategy(repository_with_documents)
-        query = Query(text="What is Python?")
 
-        result = await strategy.execute(query)
+        documents = await strategy.retrieve_documents("What is Python?", top_k=5)
 
-        assert result.query == query
-        assert "Based on 3 documents" in result.answer
-        assert "What is Python?" in result.answer
-        assert len(result.sources) == 3
-        assert all(source.endswith(".pdf") for source in result.sources)
+        assert len(documents) == 3
+        assert all(isinstance(doc, Document) for doc in documents)
+        assert documents[0].title == "Python Programming"
 
-    async def test_execute_with_empty_repository(self, empty_repository):
+    async def test_retrieve_documents_with_empty_repository(self, empty_repository):
         strategy = MockRAGStrategy(empty_repository)
-        query = Query(text="What is Python?")
 
-        result = await strategy.execute(query)
+        documents = await strategy.retrieve_documents("What is Python?", top_k=5)
 
-        assert result.query == query
-        assert "No documents found" in result.answer
-        assert "What is Python?" in result.answer
-        assert result.sources == []
+        assert documents == []
 
-    async def test_execute_respects_top_k(self, repository_with_documents):
+    async def test_retrieve_documents_respects_top_k(self, repository_with_documents):
         strategy = MockRAGStrategy(repository_with_documents)
-        query = Query(text="Tell me about AI", top_k=2)
 
-        result = await strategy.execute(query)
+        documents = await strategy.retrieve_documents("Tell me about AI", top_k=2)
 
-        assert result.query == query
-        assert "Based on 2 documents" in result.answer
-        assert len(result.sources) == 2
+        assert len(documents) == 2
 
-    async def test_execute_with_documents_without_sources(self, empty_repository):
-        # Add documents without sources
-        docs = [
-            Document(title="Doc 1", content="Content 1"),
-            Document(title="Doc 2", content="Content 2"),
-        ]
-        for doc in docs:
-            await empty_repository.save(doc)
+    async def test_retrieve_documents_query_text_ignored(
+        self, repository_with_documents
+    ):
+        # Mock strategy doesn't use query_text, just returns documents
+        strategy = MockRAGStrategy(repository_with_documents)
 
-        strategy = MockRAGStrategy(empty_repository)
-        query = Query(text="Test query")
+        documents1 = await strategy.retrieve_documents("Python", top_k=3)
+        documents2 = await strategy.retrieve_documents("Java", top_k=3)
 
-        result = await strategy.execute(query)
-
-        assert "Based on 2 documents" in result.answer
-        assert result.sources == []  # No sources since documents have empty sources
+        # Should return same documents regardless of query
+        assert len(documents1) == len(documents2) == 3
+        assert [d.id for d in documents1] == [d.id for d in documents2]

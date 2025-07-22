@@ -8,7 +8,7 @@ from src.presentation.api.app import create_app
 def main() -> None:
     """Run the FastAPI application."""
     app = create_app()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8010)
 
 
 if __name__ == "__main__":
